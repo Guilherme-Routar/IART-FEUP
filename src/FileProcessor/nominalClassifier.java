@@ -1,19 +1,14 @@
 package FileProcessor;
 
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.HashMap;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 public class nominalClassifier {
 
@@ -66,7 +61,7 @@ public class nominalClassifier {
 		
 		HashMap<Integer, Integer> sharesFrequency = Histogram.mapSharesFrequency();
 		Histogram.createHistogram(sharesFrequency);
-
+		
 		try {
 			createNominalClassifier("/home/routar/Desktop/Java Repository/NewsPopularityPredictor", "OnlineNewsPopularity");
 		} catch (IOException e) {
