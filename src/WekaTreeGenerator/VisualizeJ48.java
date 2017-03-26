@@ -26,7 +26,7 @@ public class VisualizeJ48 {
 		
 		//Enabling non predictive attributes removal (url, timedelta and shares)
 		Remove attRemoval = new Remove();
-		String urlIndex = "1,", timedeltaIndex = "2,", sharesIndex = "58";
+		String urlIndex = "1,", timedeltaIndex = "2,", sharesIndex = "61";
 		attRemoval.setAttributeIndices(urlIndex + timedeltaIndex + sharesIndex);
 
 		//Adding filter (removed attributes)
