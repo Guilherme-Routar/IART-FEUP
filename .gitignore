@@ -1,0 +1,5 @@
+#Generated Bin files
+bin/
+
+#Eclipse settings
+.settings/

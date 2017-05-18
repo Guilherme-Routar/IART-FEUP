@@ -4,10 +4,12 @@ import java.awt.BorderLayout;
 import java.io.BufferedReader;
 import java.io.FileReader;
 
+import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 import weka.classifiers.meta.FilteredClassifier;
 import weka.classifiers.trees.J48;
 import weka.core.Instances;
+import weka.core.converters.ConverterUtils.DataSource;
 import weka.filters.unsupervised.attribute.Remove;
 import weka.gui.treevisualizer.PlaceNode2;
 import weka.gui.treevisualizer.TreeVisualizer;
@@ -18,38 +20,42 @@ import weka.gui.treevisualizer.TreeVisualizer;
  *
  */
 public class VisualizeJ48 {
-	public static void main(String dataset[]) throws Exception {
-
-		//Reading data from the file provided
-		Instances trainingSet = new Instances(new BufferedReader(new FileReader(dataset[0])));
-		Instances testingSet = new Instances(new BufferedReader(new FileReader(dataset[1])));
+	
+	private static Instances trainingSet, testingSet;
+	
+	public static void initDatasets(String[] datasetPath) throws Exception {
 		
-		//Enabling non predictive attributes removal (url, timedelta and shares)
-		Remove attRemoval = new Remove();
-		String urlIndex = "1,", timedeltaIndex = "2,", sharesIndex = "61";
-		attRemoval.setAttributeIndices(urlIndex + timedeltaIndex + sharesIndex);
-
-		//Adding filter (removed attributes)
-		FilteredClassifier filter = new FilteredClassifier();
-		filter.setFilter(attRemoval);
+		DataSource trainSource = new DataSource(datasetPath[0]);
+		DataSource testSource = new DataSource(datasetPath[1]);
 		
-		//Generating decision model (tree)
-		J48 j48 = new J48();
-		filter.setClassifier(j48);
+		trainingSet = trainSource.getDataSet();
 		trainingSet.setClassIndex(trainingSet.numAttributes() - 1);
-		filter.buildClassifier(trainingSet);
-		
-		//Evaluating generated decision model (tree)
+		testingSet = testSource.getDataSet();
 		testingSet.setClassIndex(testingSet.numAttributes() - 1);
-		Evaluation eval = new Evaluation(trainingSet);
-		eval.evaluateModel(j48, testingSet);
-		System.out.println(eval.toSummaryString("\nResults\n======", false));
+	}
+	
+	public static Classifier buildModel() throws Exception {
 		
-		//Displaying decision model (tree)
+		Classifier cls = new J48();
+		cls.buildClassifier(trainingSet);
+		return cls;
+	}
+	
+	public static Classifier evaluateModel(Classifier cls) throws Exception {
+		
+		Evaluation eval = new Evaluation(trainingSet);
+		eval.evaluateModel(cls, testingSet);
+		System.out.println(eval.toSummaryString("\nResults\n======", false));
+		return cls;
+	}
+	
+	public static void displayTree(J48 j48) {
+		
+		// Displaying decision model (tree)
 		final javax.swing.JFrame jf = new javax.swing.JFrame("Weka Classifier Tree Visualizer: J48");
 		jf.setSize(1200, 700);
 		jf.getContentPane().setLayout(new BorderLayout());
-		TreeVisualizer tv = new TreeVisualizer(null, j48.graph(), new PlaceNode2());
+		TreeVisualizer tv = new TreeVisualizer(null, ((J48) cls).graph(), new PlaceNode2());
 		jf.getContentPane().add(tv, BorderLayout.CENTER);
 		jf.addWindowListener(new java.awt.event.WindowAdapter() {
 			public void windowClosing(java.awt.event.WindowEvent e) {
@@ -58,5 +64,14 @@ public class VisualizeJ48 {
 		});
 		jf.setVisible(true);
 		tv.fitToScreen();
+	}
+	
+	public static void main(String dataset[]) throws Exception {
+
+	
+		initDatasets(dataset);
+		displayTree((J48) evaluateModel(buildModel()));
+
+		
 	}
 }
