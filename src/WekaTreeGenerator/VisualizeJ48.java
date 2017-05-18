@@ -49,13 +49,13 @@ public class VisualizeJ48 {
 		return cls;
 	}
 	
-	public static void displayTree(J48 j48) {
+	public static void displayTree(J48 j48) throws Exception {
 		
 		// Displaying decision model (tree)
 		final javax.swing.JFrame jf = new javax.swing.JFrame("Weka Classifier Tree Visualizer: J48");
 		jf.setSize(1200, 700);
 		jf.getContentPane().setLayout(new BorderLayout());
-		TreeVisualizer tv = new TreeVisualizer(null, ((J48) cls).graph(), new PlaceNode2());
+		TreeVisualizer tv = new TreeVisualizer(null, j48.graph(), new PlaceNode2());
 		jf.getContentPane().add(tv, BorderLayout.CENTER);
 		jf.addWindowListener(new java.awt.event.WindowAdapter() {
 			public void windowClosing(java.awt.event.WindowEvent e) {
@@ -68,10 +68,8 @@ public class VisualizeJ48 {
 	
 	public static void main(String dataset[]) throws Exception {
 
-	
 		initDatasets(dataset);
 		displayTree((J48) evaluateModel(buildModel()));
-
 		
 	}
 }
