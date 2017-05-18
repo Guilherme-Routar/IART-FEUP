@@ -3,3 +3,6 @@ bin/
 
 #Eclipse settings
 .settings/
+
+.classpath
+,project
