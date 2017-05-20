@@ -37,7 +37,10 @@ public class VisualizeJ48 {
 	public static Classifier buildModel() throws Exception {
 		
 		Classifier cls = new J48();
+		//Tree pruning
+		((J48) cls).setMinNumObj(500);
 		cls.buildClassifier(trainingSet);
+		
 		return cls;
 	}
 	
@@ -46,6 +49,7 @@ public class VisualizeJ48 {
 		Evaluation eval = new Evaluation(trainingSet);
 		eval.evaluateModel(cls, testingSet);
 		System.out.println(eval.toSummaryString("\nResults\n======", false));
+		System.out.println("Graph = " + ((J48) cls).graph());
 		return cls;
 	}
 	
