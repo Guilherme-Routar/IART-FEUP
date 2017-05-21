@@ -30,7 +30,7 @@ public class ApplicationUI extends JFrame {
     public static void main(String[] args) throws Exception {
         JFrame frame = new JFrame("Online News Popularity Predictor");
         
-        JButton b1 = new JButton("Disable middle button");
+        JButton b1 = new JButton("Generate Decision Model");
         b1.setVerticalTextPosition(AbstractButton.CENTER);
         b1.setHorizontalTextPosition(AbstractButton.LEADING); //aka LEFT, for left-to-right locales
         b1.setMnemonic(KeyEvent.VK_D);
