@@ -127,6 +127,41 @@ public class FileConverter {
 		train_test_instances.add(train_instances);
 		return train_test_instances;
 	}
+	
+	public static void writeToFile(String classType, BufferedReader bufferToRead, BufferedWriter test, BufferedWriter train) throws IOException {
+		
+		int testInstances = 0, totalInstances = 0;
+		
+		switch (classType) {
+		case "low":
+			testInstances = LOW_TEST_INSTANCES;
+			totalInstances = LOW_TOTAL_INSTANCES;
+			break;
+		case "medium":
+			testInstances = MEDIUM_TEST_INSTANCES;
+			totalInstances = MEDIUM_TOTAL_INSTANCES;
+			break;
+		case "high":
+			testInstances = HIGH_TEST_INSTANCES;
+			totalInstances = HIGH_TOTAL_INSTANCES;
+			break;
+		default:
+			break;
+		}
+		
+		ArrayList<ArrayList<Integer>> randInstances = getRandomInstances(testInstances, totalInstances);
+		ArrayList<Integer> randTestInstances = randInstances.get(0);
+		ArrayList<Integer> randTrainInstances = randInstances.get(1);
+
+		int i = 0;
+		String line = null;
+		for (line = bufferToRead.readLine(); line != null; line = bufferToRead.readLine(), i++) {
+			if (randTrainInstances.contains(i))
+				train.write(line + lineSep);
+			if (randTestInstances.contains(i))
+				test.write(line + lineSep);
+		}
+	}
 
 	public static void createTrainTest() throws IOException {
 
@@ -156,46 +191,14 @@ public class FileConverter {
 
 		try {
 
-			String line = null;
-			int i = 0;
-
 			// #### Creating low train and test files ####
-			ArrayList<ArrayList<Integer>> low_RandInstances = getRandomInstances(LOW_TEST_INSTANCES, LOW_TOTAL_INSTANCES);
-			ArrayList<Integer> low_RandTestInstances = low_RandInstances.get(0);
-			ArrayList<Integer> low_RandTrainInstances = low_RandInstances.get(1);
-
-			for (line = br_lowInstances.readLine(); line != null; line = br_lowInstances.readLine(), i++) {
-				if (low_RandTrainInstances.contains(i))
-					bw_low_trainInstances.write(line + lineSep);
-				if (low_RandTestInstances.contains(i))
-					bw_low_testInstances.write(line + lineSep);
-			}
-
+			writeToFile("low", br_lowInstances, bw_low_testInstances, bw_low_trainInstances);
+			
 			// #### Creating medium train and test files ####
-			ArrayList<ArrayList<Integer>> medium_RandInstances = getRandomInstances(MEDIUM_TEST_INSTANCES, MEDIUM_TOTAL_INSTANCES);
-			ArrayList<Integer> medium_RandTestInstances = medium_RandInstances.get(0);
-			ArrayList<Integer> medium_RandTrainInstances = medium_RandInstances.get(1);
-
-			i = 0;
-			for (line = br_mediumInstances.readLine(); line != null; line = br_mediumInstances.readLine(), i++) {
-				if (medium_RandTrainInstances.contains(i))
-					bw_medium_trainInstances.write(line + lineSep);
-				if (medium_RandTestInstances.contains(i))
-					bw_medium_testInstances.write(line + lineSep);
-			}
-
+			writeToFile("medium", br_mediumInstances, bw_medium_testInstances, bw_medium_trainInstances);
+			
 			// #### Creating high train and test files ####
-			ArrayList<ArrayList<Integer>> high_RandInstances = getRandomInstances(HIGH_TEST_INSTANCES, HIGH_TOTAL_INSTANCES);
-			ArrayList<Integer> high_RandTestInstances = high_RandInstances.get(0);
-			ArrayList<Integer> high_RandTrainInstances = high_RandInstances.get(1);
-
-			i = 0;
-			for (line = br_highInstances.readLine(); line != null; line = br_highInstances.readLine(), i++) {
-				if (high_RandTrainInstances.contains(i))
-					bw_high_trainInstances.write(line + lineSep);
-				if (high_RandTestInstances.contains(i))
-					bw_high_testInstances.write(line + lineSep);
-			}
+			writeToFile("high", br_highInstances, bw_high_testInstances, bw_high_trainInstances);
 
 		} catch (Exception e) {
 			System.out.println(e);
