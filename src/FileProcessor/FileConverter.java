@@ -22,7 +22,7 @@ public class FileConverter {
 
 	private static String lineSep = System.getProperty("line.separator");
 
-	private static String PATH = "/home/routar/Desktop/Java Repository/NewsPopularityPredictor";
+	private static String PATH = System.getProperty("user.dir");
 	
 	public static void sortByClassType() throws IOException {
 		
