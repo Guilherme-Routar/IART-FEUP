@@ -1,3 +1,4 @@
+package GUI;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
@@ -5,7 +6,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import FileProcessor.FileConverter;
-import WekaTreeGenerator.VisualizeJ48;
+import J48Weka.J48Engine;
 import weka.classifiers.Evaluation;
 
 import javax.swing.JButton;
@@ -16,33 +17,29 @@ import java.awt.event.ActionEvent;
 import java.awt.Color;
 
 import javax.swing.JCheckBox;
-import javax.swing.JDialog;
 import javax.swing.JSeparator;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
+import javax.swing.ButtonGroup;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import java.awt.Font;
 import java.awt.SystemColor;
 import javax.swing.LayoutStyle.ComponentPlacement;
-import javax.swing.JFileChooser;
-import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
 
-public class test extends JFrame {
+public class Interface extends JFrame {
 	
 	private static String PATH = System.getProperty("user.dir");
-	private JTextField textField_1;
 
-	/**
-	 * Launch the application.
-	 */
+	
+	// ########## LAUNCH APPLICATION ##########
+	
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					test frame = new test();
+					Interface frame = new Interface();
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -50,13 +47,16 @@ public class test extends JFrame {
 			}
 		});
 	}
-
-	/**
-	 * Create the frame.
-	 */
-	public test() {
+	
+	public Interface() {
 		
-		VisualizeJ48 j48 = new VisualizeJ48();
+		initComponents();
+	}
+	
+	public void initComponents() {
+		
+		// Initializing engine
+		J48Engine j48 = new J48Engine();
 
 		// ########## TITLE ##########
 
@@ -116,37 +116,21 @@ public class test extends JFrame {
 		JCheckBox chckbxGenerateRandomSets = new JCheckBox("Generate Random Sets");
 		chckbxGenerateRandomSets.setBackground(Color.LIGHT_GRAY);
 		
-		// Checkbox to load sets
-		JCheckBox chckbxLoadSets = new JCheckBox("Load Sets");
-		chckbxLoadSets.setBackground(Color.LIGHT_GRAY);
+		// Checkbox for cross-validation evaluation
+		JCheckBox chckbxCrossvalidation_1 = new JCheckBox("Cross-Validation");
+		chckbxCrossvalidation_1.setForeground(Color.BLACK);
+		chckbxCrossvalidation_1.setBackground(Color.LIGHT_GRAY);
+		
+		JTextField textField_1 = new JTextField();
+		textField_1.setText("10");
+		textField_1.setToolTipText("Number of folds");
+		textField_1.setColumns(10);
 		
 		// Making sure only 1 checkbox is selected
 		ButtonGroup buttonGroup = new ButtonGroup();
 		buttonGroup.add(chckbxPreConfiguredSet);
 		buttonGroup.add(chckbxGenerateRandomSets);
-		buttonGroup.add(chckbxLoadSets);
-		
-		// Button to load a training set
-		JButton btnLoadTrainingSet = new JButton("Load Training Set");
-		btnLoadTrainingSet.setForeground(Color.WHITE);
-		btnLoadTrainingSet.setBackground(Color.DARK_GRAY);
-		btnLoadTrainingSet.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				JFileChooser fileChooser = new JFileChooser();
-				fileChooser.showOpenDialog(null);
-			}
-		});
-
-		// Button to load a testing set
-		JButton btnLoadTestingSet = new JButton("Load Testing Set");
-		btnLoadTestingSet.setForeground(Color.WHITE);
-		btnLoadTestingSet.setBackground(Color.DARK_GRAY);
-		btnLoadTestingSet.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-			}
-		});
+		buttonGroup.add(chckbxCrossvalidation_1);
 		
 		// ####################
 		
@@ -157,7 +141,7 @@ public class test extends JFrame {
 		JPanel parametersPanel = new JPanel();
 		parametersPanel.setBackground(Color.LIGHT_GRAY);
 
-		// parametersPanel title
+		// Label title
 		JLabel lblSetYourParameters = new JLabel("Set Your Parameters");
 		lblSetYourParameters.setFont(new Font("FreeSerif", Font.BOLD, 20));
 
@@ -195,9 +179,11 @@ public class test extends JFrame {
 		JLabel lblIncorrectlyPredictedInstances_input = new JLabel();
 		lblIncorrectlyPredictedInstances_input.setForeground(new Color(255, 0, 0));
 		
+		// Label for relative absolute error
 		JLabel lblRelativeAbsoluteError = new JLabel("Relative absolute error:");
 		JLabel lblRelativeAbsoluteError_input = new JLabel();
 		
+		// Label for total number of objects
 		JLabel lblTotalNumberOf = new JLabel("Total number of instances:");
 		JLabel lblTotalNumberOf_input = new JLabel();
 		
@@ -210,7 +196,6 @@ public class test extends JFrame {
 				try {
 					j48.displayTree();
 				} catch (Exception e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 			}
@@ -226,7 +211,9 @@ public class test extends JFrame {
 
 					String[] datasets;
 					
-					// Sets handling
+					// Pre Configured Set option is selected
+					// These sets are the most successful combination generated randomly
+					// Used by default 
 					if (chckbxPreConfiguredSet.isSelected()) {
 						datasets = new String[] {
 								"trainingSet.arff",
@@ -234,19 +221,25 @@ public class test extends JFrame {
 						};
 						j48.updateDatasets(datasets);
 					}
+					// Generate Random Sets option is selected
 					else if (chckbxGenerateRandomSets.isSelected()) {
 						FileConverter FC = new FileConverter();
-						FC.sortByClassType();
-						FC.createTrainTestSetsByClass();
-						FC.createTrainTestSets();
+						FC.generateRandomSets();
 						datasets = new String[] {
 								"randomTrainingSet.arff",
 								"randomTestingSet.arff"
 						};
 						j48.updateDatasets(datasets);
 					}
-					else 
-						System.out.println("loading set");
+					// Cross Validation option is selected
+					else if (chckbxCrossvalidation_1.isSelected()) {
+						System.out.println("Cross validation");
+						datasets = new String[] {
+								"trainingSet.arff"
+						};
+						j48.enableCrossValidation();
+						j48.updateDatasets(datasets);
+					}
 
 					// Handling pruning
 					if (chckbxPruning.isSelected())
@@ -257,11 +250,13 @@ public class test extends JFrame {
 					// Handling minimum number of objects
 					j48.setMinNumOfObjects(textField.getText());
 					
-					j48.buildModel();
+					// Building classifier
+					j48.buildClassifier();
 					
-					Evaluation eval = j48.evaluateModel(); 
-					//eval.crossValidateModel(classifier, data, numFolds, random, forPredictionsPrinting);
+					// Evaluating model generated
+					Evaluation eval = j48.evaluateModel(Integer.parseInt(textField_1.getText()));
 					
+					// Updating results
 					DecimalFormat df = new DecimalFormat("#.00"); 
 					lblCorrectlyPredictedInstances_input.setText((int) eval.correct() + "   " + df.format(eval.pctCorrect()) + "%");
 					lblIncorrectlyPredictedInstances_input.setText((int) eval.incorrect() + "   " + df.format(eval.pctIncorrect()) + "%");
@@ -269,7 +264,6 @@ public class test extends JFrame {
 					lblTotalNumberOf_input.setText(String.valueOf((int) eval.numInstances()));
 
 				} catch (Exception e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 			}
@@ -281,7 +275,7 @@ public class test extends JFrame {
 		btnViewConfusionMatrix.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					Evaluation eval = j48.evaluateModel();
+					Evaluation eval = j48.evaluateModel(2);
 					JOptionPane jd = new JOptionPane();
 					jd.showInputDialog(eval.toMatrixString());
 				} catch (Exception e1) {
@@ -309,7 +303,7 @@ public class test extends JFrame {
 						.addGroup(gl_contentPane.createSequentialGroup()
 							.addGap(24)
 							.addComponent(parametersPanel, GroupLayout.PREFERRED_SIZE, 378, GroupLayout.PREFERRED_SIZE)
-							.addGap(44)
+							.addGap(48)
 							.addComponent(setsPanel, GroupLayout.PREFERRED_SIZE, 275, GroupLayout.PREFERRED_SIZE)))
 					.addContainerGap(24, Short.MAX_VALUE))
 		);
@@ -324,19 +318,14 @@ public class test extends JFrame {
 							.addGap(18)
 							.addComponent(parametersPanel, GroupLayout.PREFERRED_SIZE, 582, GroupLayout.PREFERRED_SIZE))
 						.addGroup(gl_contentPane.createSequentialGroup()
-							.addGap(106)
-							.addComponent(setsPanel, GroupLayout.PREFERRED_SIZE, 389, GroupLayout.PREFERRED_SIZE)))
+							.addGap(152)
+							.addComponent(setsPanel, GroupLayout.PREFERRED_SIZE, 252, GroupLayout.PREFERRED_SIZE)))
 					.addGap(48))
 		);
 		
-		JCheckBox chckbxCrossvalidation_1 = new JCheckBox("Cross-Validation");
-		chckbxCrossvalidation_1.setForeground(Color.BLACK);
-		chckbxCrossvalidation_1.setBackground(Color.LIGHT_GRAY);
-		
-		textField_1 = new JTextField();
-		textField_1.setText("10");
-		textField_1.setToolTipText("Number of folds");
-		textField_1.setColumns(10);
+		JSeparator separator = new JSeparator();
+		separator.setForeground(Color.BLACK);
+		separator.setBackground(Color.BLACK);
 
 		GroupLayout gl_panel_1 = new GroupLayout(setsPanel);
 		gl_panel_1.setHorizontalGroup(
@@ -352,18 +341,12 @@ public class test extends JFrame {
 						.addGroup(gl_panel_1.createSequentialGroup()
 							.addGap(24)
 							.addGroup(gl_panel_1.createParallelGroup(Alignment.LEADING)
-								.addComponent(chckbxLoadSets)
 								.addGroup(gl_panel_1.createSequentialGroup()
 									.addComponent(chckbxCrossvalidation_1)
 									.addGap(18)
 									.addComponent(textField_1, GroupLayout.PREFERRED_SIZE, 73, GroupLayout.PREFERRED_SIZE))
 								.addComponent(chckbxGenerateRandomSets)
-								.addComponent(chckbxPreConfiguredSet)))
-						.addGroup(gl_panel_1.createSequentialGroup()
-							.addGap(57)
-							.addGroup(gl_panel_1.createParallelGroup(Alignment.LEADING)
-								.addComponent(btnLoadTestingSet, GroupLayout.PREFERRED_SIZE, 168, GroupLayout.PREFERRED_SIZE)
-								.addComponent(btnLoadTrainingSet, GroupLayout.PREFERRED_SIZE, 169, GroupLayout.PREFERRED_SIZE))))
+								.addComponent(chckbxPreConfiguredSet))))
 					.addContainerGap(18, Short.MAX_VALUE))
 		);
 		gl_panel_1.setVerticalGroup(
@@ -381,21 +364,10 @@ public class test extends JFrame {
 					.addGroup(gl_panel_1.createParallelGroup(Alignment.BASELINE)
 						.addComponent(chckbxCrossvalidation_1)
 						.addComponent(textField_1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-					.addGap(18)
-					.addComponent(chckbxLoadSets)
-					.addGap(29)
-					.addComponent(btnLoadTrainingSet)
-					.addPreferredGap(ComponentPlacement.UNRELATED)
-					.addComponent(btnLoadTestingSet)
-					.addContainerGap(70, Short.MAX_VALUE))
+					.addContainerGap(182, Short.MAX_VALUE))
 		);
 		setsPanel.setLayout(gl_panel_1);
-		
-		JSeparator separator = new JSeparator();
-		separator.setForeground(Color.BLACK);
-		separator.setBackground(Color.BLACK);
-		
-		
+	
 		
 		GroupLayout gl_panel = new GroupLayout(parametersPanel);
 		gl_panel.setHorizontalGroup(

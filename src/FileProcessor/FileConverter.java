@@ -24,6 +24,17 @@ public class FileConverter {
 
 	private static String PATH = System.getProperty("user.dir");
 	
+	public static void generateRandomSets() throws IOException {
+		
+		sortByClassType();
+		createTrainTestSetsByClass();
+		createTrainTestSets();
+	}
+	
+	// This function creates 3 =/= files similar to the original with an extra attribute (popularity)
+	// This attribute can be instanced as Low, Medium or High depending on the number of shares
+	// Each file contains the instances of the 3 different classes
+	// Low.csv - contains all the instances where class="Low", Medium.csv - (...), High.csv - (...)
 	public static void sortByClassType() throws IOException {
 		
 		// #### FILES TO READ ####
@@ -49,9 +60,10 @@ public class FileConverter {
 				String[] rowVal = line.split(",");
 
 				if (i != 0) {
+					// Getting number of shares to calculate the class (Low, Medium or High) 
 					shares = Integer.parseInt(rowVal[60].substring(1));
 					if (shares >= 0 & shares <= 1000) {
-						addedColumn = String.valueOf(", Low");
+						addedColumn = String.valueOf(", Low"); //Adding extra attribute 
 						bw_lowInstances.write(line + addedColumn + lineSep);
 					} else if (shares >= 1001 & shares <= 2000) {
 						addedColumn = String.valueOf(", Medium");

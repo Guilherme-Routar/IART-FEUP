@@ -1,8 +1,9 @@
-package WekaTreeGenerator;
+package J48Weka;
 
 import java.awt.BorderLayout;
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.util.Random;
 
 import com.sun.org.apache.xml.internal.serializer.utils.StringToIntTable;
 
@@ -21,12 +22,13 @@ import weka.gui.treevisualizer.TreeVisualizer;
  * @author routar
  *
  */
-public class VisualizeJ48 {
+public class J48Engine {
 	
 	private static Instances trainingSet, testingSet;
 	private static Classifier cls;
+	private static boolean crossValidation = false;
 	
-	public VisualizeJ48() {
+	public J48Engine() {
 		
 		cls = new J48();
 	}
@@ -34,12 +36,19 @@ public class VisualizeJ48 {
 	public static void updateDatasets(String[] datasetPath) throws Exception {
 		
 		DataSource trainSource = new DataSource(datasetPath[0]);
-		DataSource testSource = new DataSource(datasetPath[1]);
-		
 		trainingSet = trainSource.getDataSet();
 		trainingSet.setClassIndex(trainingSet.numAttributes() - 1);
-		testingSet = testSource.getDataSet();
-		testingSet.setClassIndex(testingSet.numAttributes() - 1);
+		
+		// Load testing set in case cross-validation is not selected
+		if (!crossValidation) {
+			DataSource testSource = new DataSource(datasetPath[1]);
+			testingSet = testSource.getDataSet();
+			testingSet.setClassIndex(testingSet.numAttributes() - 1);
+		}
+	}
+	
+	public static void enableCrossValidation() {
+		crossValidation = true;
 	}
 	
 	public static void enablePruning() {
@@ -57,17 +66,20 @@ public class VisualizeJ48 {
 		((J48) cls).setMinNumObj(Integer.parseInt(numStr)); System.out.println("Min Num of objs = " + numStr);
 	}
 	
-	public static void buildModel() throws Exception {
+	public static void buildClassifier() throws Exception {
 		
 		cls.buildClassifier(trainingSet);
 	}
 	
-	public static Evaluation evaluateModel() throws Exception {
+	public static Evaluation evaluateModel(int nFolds) throws Exception {
 		
-		Evaluation eval = new Evaluation(trainingSet);
-		eval.evaluateModel(cls, testingSet);
-		//System.out.println(eval.pctCorrect());
-		//System.out.println(eval.pctIncorrect());
+		Evaluation eval = new Evaluation(trainingSet);		
+		if (!crossValidation)
+			eval.evaluateModel(cls, testingSet);
+		else {
+			eval.crossValidateModel(cls, trainingSet, nFolds, new Random(1));
+		}
+		
 		return eval;
 	}
 	
@@ -86,12 +98,5 @@ public class VisualizeJ48 {
 		});
 		jf.setVisible(true);
 		tv.fitToScreen();
-	}
-	
-	public static void main(String dataset[]) throws Exception {
-
-		//updateDatasets(dataset);
-		//displayTree((J48) evaluateModel(buildModel()));
-		
 	}
 }
