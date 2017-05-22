@@ -122,6 +122,12 @@ public class FileConverter {
 			if (bw_high_trainInstances != null) bw_high_trainInstances.close();
 			if (bw_high_testInstances != null) bw_high_testInstances.close();
 		}
+		
+		// Deleting unnecessary files
+		lowInstances.delete();
+		mediumInstances.delete();
+		highInstances.delete();
+		
 	}
 	
 	public static void createTrainTestSets() throws IOException {
@@ -142,8 +148,8 @@ public class FileConverter {
 		BufferedReader br_high_testInstances = new BufferedReader(new InputStreamReader(new FileInputStream(high_testInstances)));
 		
 		// #### FILES TO CREATE ####
-		File trainingSet = new File(PATH, "newTraining.arff");
-		File testingSet = new File(PATH, "newTesting.arff");
+		File trainingSet = new File(PATH, "randomTrainingSet.arff");
+		File testingSet = new File(PATH, "randomTestingSet.arff"); 
 
 		BufferedWriter bw_trainingSet = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(trainingSet)));
 		BufferedWriter bw_testingSet = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(testingSet)));
@@ -177,6 +183,15 @@ public class FileConverter {
 			if (bw_trainingSet != null) bw_trainingSet.close();
 			if (bw_testingSet != null) bw_testingSet.close();
 		}
+		
+		// Deleting unnecessary files
+		low_trainInstances.delete();
+		low_testInstances.delete();
+		medium_trainInstances.delete();
+		medium_testInstances.delete();
+		high_trainInstances.delete();
+		high_testInstances.delete();
+		
 	}
 
 	public static String build_line(String[] rowValues) {

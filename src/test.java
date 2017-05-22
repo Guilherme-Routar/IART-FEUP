@@ -29,6 +29,7 @@ import javax.swing.ButtonGroup;
 public class test extends JFrame {
 	
 	private static String PATH = System.getProperty("user.dir");
+	private JTextField textField_1;
 
 	/**
 	 * Launch the application.
@@ -55,7 +56,7 @@ public class test extends JFrame {
 
 		setTitle("Online News Popularity Predictor");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 800, 700);
+		setBounds(100, 100, 800, 750);
 		
 		// ####################
 		
@@ -180,16 +181,21 @@ public class test extends JFrame {
 
 		// Label for correctly predicted instances
 		JLabel lblCorrectlyPredictedInstances = new JLabel("Correctly predicted instances: ");
-		JLabel lblCorrectlyPredictedInstances_input = new JLabel();
+		JLabel lblCorrectlyPredictedInstances_input = new JLabel("8080 80.80%");
+		lblCorrectlyPredictedInstances_input.setForeground(new Color(0, 128, 0));
 
 		// Label for incorrectly predicted instances
 		JLabel lblIncorrectlyPredictedInstances = new JLabel("Incorrectly predicted instances:");
-		JLabel lblIncorrectlyPredictedInstances_input = new JLabel();
+		JLabel lblIncorrectlyPredictedInstances_input = new JLabel("8080 80.80%");
+		lblIncorrectlyPredictedInstances_input.setForeground(new Color(255, 0, 0));
 		
-		// Label for incorrectly predicted instances
-		//JLabel lblrelativeAbsoluteError = new JLabel("Relative absolute error:");
-		//JLabel lblrelativeAbsoluteError_input = new JLabel();
-
+		JLabel lblRelativeAbsoluteError = new JLabel("Relative absolute error:");
+		JLabel lblRelativeAbsoluteError_input = new JLabel("80.80%");
+		
+		JLabel lblTotalNumberOf = new JLabel("Total number of instances:");
+		JLabel lblTotalNumberOf_input = new JLabel("8080");
+		
+		
 		// Button to view the generated tree
 		JButton btnViewTree = new JButton("View Tree");
 		btnViewTree.setForeground(Color.WHITE);
@@ -232,13 +238,12 @@ public class test extends JFrame {
 					
 					Evaluation eval = j48.evaluateModel();
 					//eval.crossValidateModel(classifier, data, numFolds, random, forPredictionsPrinting);
-					System.out.println("eval int = " + eval.correct());
-					DecimalFormat df = new DecimalFormat("#.00"); 	
-					//eval.
-					lblCorrectlyPredictedInstances_input.setText(eval.correct() + "   " + df.format(eval.pctCorrect()) + "%");
-					lblIncorrectlyPredictedInstances_input.setText(eval.incorrect() + "   " + df.format(eval.pctIncorrect()) + "%");
-					System.out.println(eval.toSummaryString());
-
+					
+					DecimalFormat df = new DecimalFormat("#.00"); 
+					lblCorrectlyPredictedInstances_input.setText((int) eval.correct() + "   " + df.format(eval.pctCorrect()) + "%");
+					lblIncorrectlyPredictedInstances_input.setText((int) eval.incorrect() + "   " + df.format(eval.pctIncorrect()) + "%");
+					lblRelativeAbsoluteError_input.setText(String.valueOf(df.format(eval.relativeAbsoluteError())) + "%");
+					lblTotalNumberOf_input.setText(String.valueOf((int) eval.numInstances()));
 
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block
@@ -278,11 +283,11 @@ public class test extends JFrame {
 					.addGap(18)
 					.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING)
 						.addGroup(gl_contentPane.createSequentialGroup()
-							.addComponent(parametersPanel, GroupLayout.PREFERRED_SIZE, 452, GroupLayout.PREFERRED_SIZE)
-							.addGap(128))
-						.addGroup(gl_contentPane.createSequentialGroup()
 							.addComponent(setsPanel, GroupLayout.PREFERRED_SIZE, 333, GroupLayout.PREFERRED_SIZE)
-							.addGap(181))))
+							.addGap(181))
+						.addGroup(gl_contentPane.createSequentialGroup()
+							.addComponent(parametersPanel, GroupLayout.PREFERRED_SIZE, 582, GroupLayout.PREFERRED_SIZE)
+							.addContainerGap())))
 		);
 
 		GroupLayout gl_panel_1 = new GroupLayout(setsPanel);
@@ -330,60 +335,106 @@ public class test extends JFrame {
 		);
 		setsPanel.setLayout(gl_panel_1);
 		
+		JCheckBox chckbxCrossvalidation = new JCheckBox("Cross-Validation");
+		chckbxCrossvalidation.setBackground(Color.LIGHT_GRAY);
+		
+		JCheckBox chckbxTestingSet = new JCheckBox("Testing Set");
+		chckbxTestingSet.setBackground(Color.LIGHT_GRAY);
+		
+		textField_1 = new JTextField();
+		textField_1.setText("10");
+		textField_1.setToolTipText("Number of folds");
+		textField_1.setColumns(10);
+		
+		JButton btnVewConfusionMatrix = new JButton("Vew Confusion Matrix");
+		btnVewConfusionMatrix.setForeground(Color.WHITE);
+		btnVewConfusionMatrix.setBackground(Color.DARK_GRAY);
+		
 		GroupLayout gl_panel = new GroupLayout(parametersPanel);
 		gl_panel.setHorizontalGroup(
 			gl_panel.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_panel.createSequentialGroup()
 					.addGroup(gl_panel.createParallelGroup(Alignment.LEADING)
-						.addGroup(gl_panel.createParallelGroup(Alignment.LEADING)
-							.addGroup(gl_panel.createSequentialGroup()
-								.addGap(23)
-								.addGroup(gl_panel.createParallelGroup(Alignment.TRAILING)
-									.addComponent(chckbxPruning)
-									.addComponent(lblMinNumberOfObjects))
-								.addGap(31)
-								.addComponent(textField, GroupLayout.PREFERRED_SIZE, 89, GroupLayout.PREFERRED_SIZE))
-							.addGroup(gl_panel.createSequentialGroup()
-								.addGap(88)
-								.addComponent(lblSetYourParameters))
-							.addGroup(gl_panel.createSequentialGroup()
-								.addGap(53)
-								.addComponent(separator3, GroupLayout.PREFERRED_SIZE, 273, GroupLayout.PREFERRED_SIZE))
-							.addGroup(gl_panel.createSequentialGroup()
-								.addGap(81)
-								.addComponent(btnGenerateDecisionModel))
-							.addGroup(gl_panel.createSequentialGroup()
-								.addGap(156)
-								.addComponent(lblResults)))
+						.addGroup(gl_panel.createSequentialGroup()
+							.addGap(88)
+							.addComponent(lblSetYourParameters))
 						.addGroup(gl_panel.createSequentialGroup()
 							.addGap(19)
-							.addGroup(gl_panel.createParallelGroup(Alignment.TRAILING)
-								.addComponent(btnViewTree)
-								.addGroup(gl_panel.createParallelGroup(Alignment.LEADING)
-									.addComponent(lblCorrectlyPredictedInstances)
-									.addComponent(lblIncorrectlyPredictedInstances)))
-							.addPreferredGap(ComponentPlacement.UNRELATED)
-							.addGroup(gl_panel.createParallelGroup(Alignment.TRAILING)
-								.addComponent(lblCorrectlyPredictedInstances_input, GroupLayout.DEFAULT_SIZE, 104, Short.MAX_VALUE)
-								.addComponent(lblIncorrectlyPredictedInstances_input, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 110, Short.MAX_VALUE))))
+							.addGroup(gl_panel.createParallelGroup(Alignment.LEADING)
+								.addComponent(lblCorrectlyPredictedInstances)
+								.addComponent(lblIncorrectlyPredictedInstances)
+								.addComponent(lblRelativeAbsoluteError)
+								.addComponent(lblTotalNumberOf)
+								.addComponent(btnViewTree, Alignment.TRAILING))
+							.addGroup(gl_panel.createParallelGroup(Alignment.LEADING)
+								.addGroup(gl_panel.createSequentialGroup()
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addGroup(gl_panel.createParallelGroup(Alignment.TRAILING)
+										.addComponent(lblCorrectlyPredictedInstances_input, GroupLayout.DEFAULT_SIZE, 320, Short.MAX_VALUE)
+										.addComponent(lblIncorrectlyPredictedInstances_input, GroupLayout.DEFAULT_SIZE, 320, Short.MAX_VALUE)))
+								.addGroup(gl_panel.createSequentialGroup()
+									.addGap(71)
+									.addComponent(lblTotalNumberOf_input)
+									.addGap(17))
+								.addGroup(gl_panel.createSequentialGroup()
+									.addGap(56)
+									.addComponent(lblRelativeAbsoluteError_input, GroupLayout.PREFERRED_SIZE, 61, GroupLayout.PREFERRED_SIZE))))
+						.addGroup(gl_panel.createSequentialGroup()
+							.addGap(156)
+							.addComponent(lblResults))
+						.addGroup(gl_panel.createSequentialGroup()
+							.addGap(53)
+							.addComponent(separator3, GroupLayout.PREFERRED_SIZE, 273, GroupLayout.PREFERRED_SIZE))
+						.addGroup(gl_panel.createSequentialGroup()
+							.addGap(32)
+							.addGroup(gl_panel.createParallelGroup(Alignment.LEADING)
+								.addComponent(chckbxPruning)
+								.addGroup(gl_panel.createSequentialGroup()
+									.addComponent(lblMinNumberOfObjects)
+									.addGap(35)
+									.addComponent(textField, GroupLayout.PREFERRED_SIZE, 85, GroupLayout.PREFERRED_SIZE))
+								.addGroup(gl_panel.createSequentialGroup()
+									.addGroup(gl_panel.createParallelGroup(Alignment.LEADING)
+										.addGroup(gl_panel.createSequentialGroup()
+											.addComponent(chckbxCrossvalidation)
+											.addGap(87)
+											.addComponent(textField_1, GroupLayout.DEFAULT_SIZE, 85, Short.MAX_VALUE))
+										.addComponent(chckbxTestingSet))
+									.addPreferredGap(ComponentPlacement.RELATED)))
+							.addGap(230))
+						.addGroup(gl_panel.createSequentialGroup()
+							.addGap(90)
+							.addComponent(btnGenerateDecisionModel))
+						.addGroup(gl_panel.createSequentialGroup()
+							.addGap(102)
+							.addComponent(btnVewConfusionMatrix)))
 					.addContainerGap())
 		);
 		gl_panel.setVerticalGroup(
 			gl_panel.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_panel.createSequentialGroup()
-					.addGap(34)
-					.addComponent(lblSetYourParameters)
-					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(separator3, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
-					.addGap(15)
-					.addComponent(chckbxPruning)
-					.addGap(18)
-					.addGroup(gl_panel.createParallelGroup(Alignment.BASELINE)
-						.addComponent(lblMinNumberOfObjects)
-						.addComponent(textField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-					.addGap(41)
+					.addGroup(gl_panel.createParallelGroup(Alignment.LEADING)
+						.addGroup(gl_panel.createSequentialGroup()
+							.addGap(34)
+							.addComponent(lblSetYourParameters)
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addComponent(separator3, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
+							.addGap(18)
+							.addGroup(gl_panel.createParallelGroup(Alignment.BASELINE)
+								.addComponent(lblMinNumberOfObjects)
+								.addComponent(textField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+							.addGap(72)
+							.addGroup(gl_panel.createParallelGroup(Alignment.BASELINE)
+								.addComponent(chckbxCrossvalidation)
+								.addComponent(textField_1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+							.addPreferredGap(ComponentPlacement.UNRELATED)
+							.addComponent(chckbxTestingSet))
+						.addGroup(gl_panel.createSequentialGroup()
+							.addGap(139)
+							.addComponent(chckbxPruning)))
+					.addGap(32)
 					.addComponent(btnGenerateDecisionModel)
-					.addGap(59)
+					.addGap(35)
 					.addComponent(lblResults)
 					.addGap(18)
 					.addGroup(gl_panel.createParallelGroup(Alignment.BASELINE)
@@ -393,9 +444,19 @@ public class test extends JFrame {
 					.addGroup(gl_panel.createParallelGroup(Alignment.BASELINE)
 						.addComponent(lblIncorrectlyPredictedInstances_input)
 						.addComponent(lblIncorrectlyPredictedInstances))
-					.addPreferredGap(ComponentPlacement.RELATED, 64, Short.MAX_VALUE)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addGroup(gl_panel.createParallelGroup(Alignment.BASELINE)
+						.addComponent(lblRelativeAbsoluteError)
+						.addComponent(lblRelativeAbsoluteError_input))
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addGroup(gl_panel.createParallelGroup(Alignment.BASELINE)
+						.addComponent(lblTotalNumberOf)
+						.addComponent(lblTotalNumberOf_input))
+					.addPreferredGap(ComponentPlacement.RELATED, 29, Short.MAX_VALUE)
 					.addComponent(btnViewTree)
-					.addContainerGap())
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addComponent(btnVewConfusionMatrix)
+					.addGap(24))
 		);
 		parametersPanel.setLayout(gl_panel);
 		mainPanel.setLayout(gl_contentPane);
