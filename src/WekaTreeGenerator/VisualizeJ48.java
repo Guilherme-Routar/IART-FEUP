@@ -34,6 +34,29 @@ public class VisualizeJ48 {
 		testingSet.setClassIndex(testingSet.numAttributes() - 1);
 	}
 	
+	public static void updateDatasets(String[] datasetPath) throws Exception {
+		
+		DataSource trainSource = new DataSource(datasetPath[0]);
+		DataSource testSource = new DataSource(datasetPath[1]);
+		
+		trainingSet = trainSource.getDataSet();
+		trainingSet.setClassIndex(trainingSet.numAttributes() - 1);
+		testingSet = testSource.getDataSet();
+		testingSet.setClassIndex(testingSet.numAttributes() - 1);
+	}
+	
+	public static void enablePruning() {
+		
+	}
+	
+	public static void disablePruning() {
+		
+	}
+	
+	public static void setMinNumOfObjects(String num) {
+		
+	}
+	
 	public static Classifier buildModel() throws Exception {
 		
 		Classifier cls = new J48();
@@ -48,7 +71,8 @@ public class VisualizeJ48 {
 		
 		Evaluation eval = new Evaluation(trainingSet);
 		eval.evaluateModel(cls, testingSet);
-		System.out.println(eval.toSummaryString("\nResults\n======", false));
+		System.out.println(eval.pctCorrect());
+		System.out.println(eval.pctIncorrect());
 		//System.out.println("Graph = " + ((J48) cls).graph());
 		return cls;
 	}
